@@ -54,7 +54,7 @@ func TestApiCalcHandler(t *testing.T) {
 			expectedStatus: http.StatusUnprocessableEntity,
 			expectedBody:   map[string]string{"error": "Expression is invalid"},
 		},
-		// 8. POST-запрос с неверными ключами в JSON
+		// 5. POST-запрос с неверными ключами в JSON
 		{
 			name:           "POST_Invalid_JSON_Keys",
 			method:         http.MethodPost,
@@ -63,7 +63,7 @@ func TestApiCalcHandler(t *testing.T) {
 			expectedStatus: http.StatusUnprocessableEntity,
 			expectedBody:   map[string]string{"error": "Expression is invalid"},
 		},
-		// 9. POST-запрос с пустым телом
+		// 6. POST-запрос с пустым телом
 		{
 			name:           "POST_Empty_Body",
 			method:         http.MethodPost,
