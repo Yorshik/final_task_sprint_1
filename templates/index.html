@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #171922;
+            color: #FFFFFF;
+        }
+        input, button {
+            padding: 10px 15px;
+            margin: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(23, 25, 34, 0.5);
+            box-shadow: 5px 5px 10px #101216,
+            -5px -5px 10px #202531;
+            outline: none;
+            background-color: #1D1F2A;
+            color: #FFFFFF;
+            font-size: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #1D1F2A;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: inset 5px 5px 10px #101216,
+            inset -5px -5px 10px #202531;
+        }
+        h2{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="section">
+    <h2>Calculate Expression</h2>
+    <label for="expression">Expression: </label><input type="text" id="expression" placeholder="e.g., 2 + 2 * 2">
+    <button onclick="submitExpression()">Submit</button>
+    <pre id="submit-result"></pre>
+</div>
+
+<div class="section">
+    <h2>All Expressions</h2>
+    <button onclick="fetchAllExpressions()">Refresh</button>
+    <pre id="all-expressions"></pre>
+</div>
+
+<div class="section">
+    <h2>Expression by ID</h2>
+    <label for="expression-id">Check the result: </label><input type="number" id="expression-id" placeholder="Enter ID">
+    <button onclick="fetchExpressionById()">Get</button>
+    <pre id="expression-by-id"></pre>
+</div>
+
+<script>
+    async function submitExpression() {
+        const expr = document.getElementById('expression').value;
+        try {
+            const response = await fetch('/api/v1/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ expression: expr })
+            });
+            const data = await response.json();
+            document.getElementById('submit-result').textContent =
+                response.ok ? `Submitted, ID: ${data.id}` : `Error: ${data.statusText}`;
+        } catch (error) {
+            document.getElementById('submit-result').textContent = `Error: ${error.message}`;
+        }
+        await fetchAllExpressions();
+    }
+    async function fetchAllExpressions() {
+        try {
+            const response = await fetch('/api/v1/expressions');
+            const data = await response.json();
+            document.getElementById('all-expressions').textContent =
+                JSON.stringify(data.expressions, null, 2);
+        } catch (error) {
+            document.getElementById('all-expressions').textContent = `Error: ${error.message}`;
+        }
+    }
+    async function fetchExpressionById() {
+        const id = document.getElementById('expression-id').value;
+        if (!id) {
+            document.getElementById('expression-by-id').textContent = "Please enter an ID";
+            return;
+        }
+        try {
+            const response = await fetch(`/api/v1/expressions/${id}`);
+            const data = await response.json();
+            document.getElementById('expression-by-id').textContent =
+                response.ok ? JSON.stringify(data.expression, null, 2) : `Error: ${data.statusText}`;
+        } catch (error) {
+            document.getElementById('expression-by-id').textContent = `Error: ${error.message}`;
+        }
+    }
+    setInterval(fetchAllExpressions, 2000);
+    fetchAllExpressions();
+</script>
+</body>
+</html>
